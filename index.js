@@ -28,7 +28,8 @@ export async function prepare(pluginConfig, context) {
     nextRelease: { version, channel },
     logger,
   } = context;
-  const { pkgRoot } = pluginConfig;
+  // Add uvSync with default true to keep behavior as before
+  const { pkgRoot, uvSync = true } = pluginConfig;
 
   const basePath = pkgRoot ? resolve(cwd, pkgRoot) : cwd;
 
@@ -44,7 +45,7 @@ export async function prepare(pluginConfig, context) {
     }
   }
 
-  const versionResult = execa("uv", ["version", pepVersion], {
+  const versionResult = execa("uv", ["version", pepVersion, ...(uvSync ? [] : ["--no-sync"])], {
     cwd: basePath,
     env,
     preferLocal: true,
@@ -67,7 +68,9 @@ export async function prepare(pluginConfig, context) {
 export async function publish(pluginConfig, context) {
   // https://github.com/semantic-release/npm/blob/master/lib/publish.js
   const { cwd, env, stdout, stderr, logger } = context;
-  const { pkgRoot, uvPublish } = pluginConfig;
+
+  // Add uvSync with default true to keep behavior as before
+  const { pkgRoot, uvPublish, uvSync = true } = pluginConfig;
 
   if (uvPublish !== false) {
     const basePath = pkgRoot ? resolve(cwd, pkgRoot) : cwd;
@@ -81,7 +84,7 @@ export async function publish(pluginConfig, context) {
 
     logger.log(`Publishing version ${pypiVersion} to pypi registry`);
 
-    const result = execa("uv", ["publish", "-v"], {
+    const result = execa("uv", ["publish", "-v", ...(uvSync ? [] : ["--no-sync"])], {
       cwd: basePath,
       env,
       preferLocal: true,
