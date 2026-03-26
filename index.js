@@ -55,7 +55,7 @@ export async function prepare(pluginConfig, context) {
   await versionResult;
 
   logger.log("Creating pypi package version %s", version);
-  const buildresult = execa("uv", ["build"], {
+  const buildresult = execa("uv", ["build", ...(uvSync ? [] : ["--no-sync"])], {
     cwd: basePath,
     env,
     preferLocal: true,
